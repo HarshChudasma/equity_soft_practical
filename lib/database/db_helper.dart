@@ -1,5 +1,7 @@
 import 'dart:io';
 import 'package:equitysoft_practical/database/category_tbl.dart';
+import 'package:equitysoft_practical/database/company_tbl.dart';
+import 'package:equitysoft_practical/database/productlist_tbl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 import 'package:sqflite/sqflite.dart';
@@ -24,6 +26,8 @@ class DbHelper{
       version: DB_VERSION,
       onCreate: (Database newDb, int version) {
         newDb.execute(CategoryTable.CREATE_TABLE_CATEGORY_LIST);
+        newDb.execute(CompanyTable.CREATE_TABLE_COMPANY_LIST);
+        newDb.execute(ProductListTable.CREATE_TABLE_COMPANY_LIST);
       },
     );
     return db;

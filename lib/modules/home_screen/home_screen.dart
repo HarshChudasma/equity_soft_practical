@@ -1,4 +1,7 @@
 import 'package:equitysoft_practical/constants/colors_constant.dart';
+import 'package:equitysoft_practical/modules/category/controllers/category_controller.dart';
+import 'package:equitysoft_practical/modules/company/controllers/company_controller.dart';
+import 'package:equitysoft_practical/modules/product/controllers/product_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -12,6 +15,15 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+
+  @override
+  void initState() {
+    Get.put<CategoryController>(CategoryController(), permanent: true);
+    Get.put<CompanyController>(CompanyController(),permanent: true);
+    Get.put<ProductController>(ProductController(),permanent: true);
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:equitysoft_practical/modules/product/controllers/product_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -12,6 +15,14 @@ class ProductListScreen extends StatefulWidget {
 }
 
 class _ProductListScreenState extends State<ProductListScreen> {
+  ProductController productController = Get.find<ProductController>();
+
+  @override
+  void initState() {
+    productController.getProductDb();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -38,20 +49,36 @@ class _ProductListScreenState extends State<ProductListScreen> {
       ),
       body: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 16.0),
-        child: ListView.builder(
-          itemCount: 10,
+        child: Obx(() => productController.isLoading.value ? Container(
+          alignment: Alignment.center,
+          child: const CircularProgressIndicator(
+            color: AppColorConstants.greyColor,
+          ),
+        ) : productController.productModelList.isEmpty
+            ? Container(
+          alignment: Alignment.center,
+          child: const Text(
+            "No Data Found!",
+            style: TextStyle(
+                color: AppColorConstants.greyColor, fontSize: 24.0),
+          ),
+        )
+            : ListView.builder(
+          itemCount: productController.productModelList.length,
           itemBuilder: (context, index) {
-            return _listOfProductListWidget();
+            return _listOfProductListWidget(index);
           },
-        ),
+        ), ),
+
       ),
     );
   }
 
-  Widget _listOfProductListWidget() {
+  Widget _listOfProductListWidget(int index) {
+    print("product list : ${productController.productModelList[index].productImages.length}");
     return GestureDetector(
-      onTap: (){
-        Get.toNamed(AppRoutes.DETAILS_SCREEN);
+      onTap: () {
+        Get.toNamed(AppRoutes.DETAILS_SCREEN,arguments: {'id': productController.productModelList[index].id,'index':index});
       },
       child: Card(
         elevation: 2.0,
@@ -77,27 +104,27 @@ class _ProductListScreenState extends State<ProductListScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   mainAxisSize: MainAxisSize.min,
-                  children: const [
+                  children: [
                     Text(
-                      "LCS Mobile Accessries New Updated",
+                      productController.productModelList[index].productCompany,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
+                      style: const TextStyle(
                           color: AppColorConstants.greyColor, fontSize: 14.0),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 4.0,
                     ),
                     Text(
-                      "Computer & Accesseries",
-                      style: TextStyle(
+                      productController.productModelList[index].productCategory,
+                      style: const TextStyle(
                           color: AppColorConstants.greyColor, fontSize: 10.0),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 4.0,
                     ),
                     Text(
-                      "Qty : 10",
-                      style: TextStyle(
+                      "Qty : ${productController.productModelList[index].productQty}",
+                      style: const TextStyle(
                           color: AppColorConstants.greyColor, fontSize: 12.0),
                     ),
                   ],
@@ -111,7 +138,15 @@ class _ProductListScreenState extends State<ProductListScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        Get.toNamed(
+                          AppRoutes.ADD_PRODUCT_SCREEN,
+                          arguments: {
+                            "isEdit": true,
+                            "id": productController.productModelList[index].id
+                          },
+                        );
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColorConstants.greyColor,
                         minimumSize: const Size(75, 28),
@@ -119,11 +154,14 @@ class _ProductListScreenState extends State<ProductListScreen> {
                       child: const Text(
                         "Edit",
                         style: TextStyle(
-                            color: AppColorConstants.whiteColor, fontSize: 14.0),
+                            color: AppColorConstants.whiteColor,
+                            fontSize: 14.0),
                       ),
                     ),
                     ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        productController.deleteProductById(productController.productModelList[index].id, index);
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColorConstants.greyColor,
                         minimumSize: const Size(75, 28),
@@ -131,7 +169,8 @@ class _ProductListScreenState extends State<ProductListScreen> {
                       child: const Text(
                         "Delete",
                         style: TextStyle(
-                            color: AppColorConstants.whiteColor, fontSize: 14.0),
+                            color: AppColorConstants.whiteColor,
+                            fontSize: 14.0),
                       ),
                     ),
                   ],

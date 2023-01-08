@@ -8,14 +8,10 @@ class CategoryTable {
   static const String clm_cat_name = "cate_name";
 
   static const CREATE_TABLE_CATEGORY_LIST =
-      """CREATE TABLE $TABLE_NAME_CATEGORY_TABLE(
+  """CREATE TABLE $TABLE_NAME_CATEGORY_TABLE(
       $clm_cat_id integer primary key autoincrement,
       $clm_cat_name text
       )""";
-
-
-  CategoryModel categoryModel = CategoryModel(categoryName: 'test');
-
 
   static Future<int> addNewCategory({
     required CategoryModel categoryModel,
@@ -37,7 +33,10 @@ class CategoryTable {
         [categoryId]);
 
     if (listOfMaps.isNotEmpty) {
-      return listOfMaps.map((e) => CategoryModel.fromDb(e)).toList().first;
+      return listOfMaps
+          .map((e) => CategoryModel.fromDb(e))
+          .toList()
+          .first;
     }
     return null;
   }
@@ -53,7 +52,7 @@ class CategoryTable {
   static Future<List<CategoryModel>> getAllCategoryFromDb() async {
     Database? db = await DbHelper.getDataBaseInstance();
     final List<Map<String, dynamic>> listOfMaps =
-        await db!.rawQuery('SELECT * FROM $TABLE_NAME_CATEGORY_TABLE');
+    await db!.rawQuery('SELECT * FROM $TABLE_NAME_CATEGORY_TABLE');
     if (listOfMaps.isNotEmpty) {
       return listOfMaps.map((e) => CategoryModel.fromDb(e)).toList();
     }

@@ -1,12 +1,13 @@
 import 'package:equitysoft_practical/config/routes/app_routes.dart';
-import 'package:equitysoft_practical/modules/category/screens/add_category_screen.dart';
-import 'package:equitysoft_practical/modules/company/add_company_screen.dart';
+import 'package:equitysoft_practical/modules/category/screens/category_screen.dart';
+import 'package:equitysoft_practical/modules/company/screens/company_screen.dart';
 import 'package:equitysoft_practical/modules/home_screen/home_screen.dart';
-import 'package:equitysoft_practical/modules/product/add_product_screen.dart';
+import 'package:equitysoft_practical/modules/product/screens/product_screen.dart';
 import 'package:equitysoft_practical/modules/product_details/product_detail_screen.dart';
-import 'package:equitysoft_practical/modules/product_screen/product_screen.dart';
 import 'package:equitysoft_practical/modules/splash_screen/splash_screen.dart';
 import 'package:get/get.dart';
+
+import '../../modules/product_list_screen/product_list_screen.dart';
 
 class AppScreens {
   static var list = [

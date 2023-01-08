@@ -1,4 +1,7 @@
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:equitysoft_practical/database/productlist_tbl.dart';
+import 'package:equitysoft_practical/modules/product/controllers/product_controller.dart';
+import 'package:equitysoft_practical/modules/product/models/product_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -12,6 +15,8 @@ class ProductDetailsScreen extends StatefulWidget {
 }
 
 class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
+  ProductController productController = Get.find<ProductController>();
+
   List imgList = [
     'https://i.dlpng.com/static/png/6838599_preview.png',
     'https://i.dlpng.com/static/png/6838599_preview.png',
@@ -19,6 +24,18 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     'https://i.dlpng.com/static/png/6838599_preview.png',
   ];
   RxInt _current = 0.obs;
+
+  var productArguments;
+  ProductModel? productModel;
+
+  @override
+  void initState() {
+    productArguments = Get.arguments;
+    productController.getProductByIdDb(productArguments['id']);
+    super.initState();
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +55,12 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
-        child: Column(
+        child: Obx(() => productController.isLoading.value ? Container(
+          alignment: Alignment.center,
+          child: const CircularProgressIndicator(
+            color: AppColorConstants.greyColor,
+          ),
+        ) : Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Stack(
@@ -74,33 +96,6 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                     );
                   }).toList(),
                 ),
-                Obx(
-                  () => Positioned(
-                    left: 0.0,
-                    right: 0.0,
-                    bottom: 0.0,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: imgList.map<Widget>(
-                        (e) {
-                          return Container(
-                            width: 16.0,
-                            height: 16.0,
-                            margin: const EdgeInsets.symmetric(
-                                vertical: 10.0, horizontal: 4.0),
-                            decoration: BoxDecoration(
-                              shape: BoxShape.rectangle,
-                              borderRadius: BorderRadius.circular(50.0),
-                              color: _current == e.obs
-                                  ? Colors.deepPurple
-                                  : Colors.grey,
-                            ),
-                          );
-                        },
-                      ).toList(),
-                    ),
-                  ),
-                ),
               ],
             ),
             const SizedBox(
@@ -122,18 +117,18 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                "LCS Mobile Accessries New Updated",
+                                productController.productModel!.value.productName,
                                 overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
+                                style: const TextStyle(
                                     color: AppColorConstants.greyColor,
                                     fontSize: 14.0),
                               ),
-                              SizedBox(
+                              const SizedBox(
                                 height: 4.0,
                               ),
                               Text(
-                                "Computer & Accesseries",
-                                style: TextStyle(
+                                productController.productModel!.value.productCategory,
+                                style: const TextStyle(
                                     color: AppColorConstants.greyColor,
                                     fontSize: 10.0),
                               ),
@@ -143,8 +138,8 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                         Expanded(
                           flex: 4,
                           child: Text(
-                            "Price: ",
-                            style: TextStyle(
+                            "Price: ${productController.productModel!.value.productPrice}",
+                            style: const TextStyle(
                                 color: AppColorConstants.greyColor,
                                 fontSize: 14.0),
                           ),
@@ -160,9 +155,9 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                         Expanded(
                           flex: 6,
                           child: Text(
-                            "LCS Mobile Accessries New Updated",
+                            productModel!.productCompany,
                             overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
+                            style: const TextStyle(
                                 color: AppColorConstants.greyColor,
                                 fontSize: 14.0),
                           ),
@@ -170,8 +165,8 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                         Expanded(
                           flex: 4,
                           child: Text(
-                            "Qty: ",
-                            style: TextStyle(
+                            "Qty: ${productController.productModel!.value.productQty}",
+                            style: const TextStyle(
                                 color: AppColorConstants.greyColor,
                                 fontSize: 14.0),
                           ),
@@ -181,7 +176,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                     const SizedBox(
                       height: 24.0,
                     ),
-                    Text(
+                    const Text(
                       "Description:",
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
@@ -191,16 +186,66 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                       height: 6.0,
                     ),
                     Text(
-                      "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960sLorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960sLorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960sLorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960sLorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960sLorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960sLorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960sLorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s",
-                      style: TextStyle(
+                      productController.productModel!.value.productDescription,
+                      style: const TextStyle(
                           color: AppColorConstants.greyColor, fontSize: 12.0),
+                    ),
+                    const SizedBox(
+                      height: 24.0,
+                    ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: () {
+
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColorConstants.greyColor,
+                            ),
+                            child: const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 12.0),
+                              child: Text(
+                                "Edit",
+                                style: TextStyle(
+                                    color: AppColorConstants.whiteColor,
+                                    fontSize: 14.0),
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          width: 24.0,
+                        ),
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: () {
+                              productController.deleteProductById(productArguments['id'], productArguments['index']);
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColorConstants.greyColor,
+                            ),
+                            child: const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 12.0),
+                              child: Text(
+                                "Delete",
+                                style: TextStyle(
+                                    color: AppColorConstants.whiteColor,
+                                    fontSize: 14.0),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
               ),
             ),
           ],
-        ),
+        ), ),
+
+
       ),
     );
   }

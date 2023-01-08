@@ -1,31 +1,40 @@
-import 'package:equitysoft_practical/constants/colors_constant.dart';
+import 'package:equitysoft_practical/database/company_tbl.dart';
+import 'package:equitysoft_practical/modules/company/controllers/company_controller.dart';
+import 'package:equitysoft_practical/modules/company/models/company_model.dart';
 import 'package:equitysoft_practical/modules/product/widget/common_textfield.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
+import '../../../constants/colors_constant.dart';
 
-class AddCategoryScreen extends StatefulWidget {
-  const AddCategoryScreen({super.key});
+class AddCompanyScreen extends StatefulWidget {
+  const AddCompanyScreen({super.key});
 
   @override
-  State<AddCategoryScreen> createState() => _AddCategoryScreenState();
+  State<AddCompanyScreen> createState() => _AddCompanyScreenState();
 }
 
-class _AddCategoryScreenState extends State<AddCategoryScreen> {
+class _AddCompanyScreenState extends State<AddCompanyScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  final TextEditingController _categoryTextEditingController =
+  final TextEditingController _companyTextEditingController =
       TextEditingController();
+  CompanyController companyController = Get.find<CompanyController>();
 
-  final FocusNode _categoryFocusNode = FocusNode();
+
+  final FocusNode _companyFocusNode = FocusNode();
+
+  List<CompanyModel> _companyModelList = [];
 
   @override
   void initState() {
     setTextFieldFocusNode();
+    companyController.getCompanyDb();
     super.initState();
   }
 
   void setTextFieldFocusNode() {
-    _categoryFocusNode.addListener(() {
+    _companyFocusNode.addListener(() {
       setState(() {});
     });
   }
@@ -39,7 +48,7 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
         elevation: 0.0,
         backgroundColor: AppColorConstants.greyColor,
         title: const Text(
-          "Category",
+          "Company",
           style: TextStyle(
             fontSize: 24.0,
             color: AppColorConstants.whiteColor,
@@ -62,16 +71,29 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
                   height: 12.0,
                 ),
                 CommonTextFieldWidget(
-                  controller: _categoryTextEditingController,
-                  focusNode: _categoryFocusNode,
-                  lableText: "Category Name",
+                  controller: _companyTextEditingController,
+                  focusNode: _companyFocusNode,
+                  lableText: "Company Name",
                   textInputType: TextInputType.text,
+                  validator: (value) {
+                    if (value!.isEmpty) {
+                      return "Please Enter Company!";
+                    }
+                  },
                 ),
                 const SizedBox(
                   height: 16.0,
                 ),
                 ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    if (_formKey.currentState!.validate()) {
+                      _formKey.currentState!.save();
+                      CompanyModel companyModel = CompanyModel(companyName: _companyTextEditingController.text);
+                      companyController.addCompanytoDb(companyModel);
+                      _companyTextEditingController.text = "";
+                      FocusScope.of(context).unfocus();
+                    }
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColorConstants.greyColor,
                   ),
@@ -88,21 +110,36 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
                   height: 24.0,
                 ),
                 const Text(
-                  "List of categories",
+                  "List of companies",
                   style: TextStyle(
                       color: AppColorConstants.greyColor, fontSize: 14.0),
                 ),
                 const SizedBox(
                   height: 8.0,
                 ),
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: 12,
+                Obx(() => Expanded(
+                  child: companyController.isLoading.value ? Container(
+                    alignment: Alignment.center,
+                    child: const CircularProgressIndicator(
+                      color: AppColorConstants.greyColor,
+                    ),
+                  ) : companyController.companyList.isEmpty
+                      ? Container(
+                    alignment: Alignment.center,
+                    child: const Text(
+                      "No Data Found!",
+                      style: TextStyle(
+                          color: AppColorConstants.greyColor,
+                          fontSize: 24.0),
+                    ),
+                  )
+                      : ListView.builder(
+                    itemCount: companyController.companyList.length,
                     itemBuilder: (context, index) {
-                      return _listOfCategory();
+                      return _listofCompany(index);
                     },
                   ),
-                ),
+                ),),
               ],
             ),
           ),
@@ -111,7 +148,7 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
     );
   }
 
-  Widget _listOfCategory() {
+  Widget _listofCompany(int index) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12.0),
       padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 16.0),
@@ -120,18 +157,21 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
         borderRadius: BorderRadius.circular(5.0),
       ),
       child: Row(
-        children: const [
+        children: [
           Expanded(
             child: Text(
-              "Category Name",
+              companyController.companyList[index].companyName,
               overflow: TextOverflow.ellipsis,
-              style: TextStyle(
+              style: const TextStyle(
                 color: AppColorConstants.whiteColor,
                 fontSize: 18.0,
               ),
             ),
           ),
           InkWell(
+            onTap: () {
+              companyController.deleteCompanyFromDb(companyController.companyList[index].id, index);
+            },
             child: Icon(
               Icons.delete_outline_outlined,
               color: AppColorConstants.whiteColor,
@@ -144,8 +184,8 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
 
   @override
   void dispose() {
-    _categoryTextEditingController.dispose();
-    _categoryFocusNode.dispose();
+    _companyTextEditingController.dispose();
+    _companyFocusNode.dispose();
     super.dispose();
   }
 }
