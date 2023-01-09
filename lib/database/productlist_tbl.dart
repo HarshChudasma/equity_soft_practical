@@ -75,5 +75,15 @@ class ProductListTable{
         where: "$clm_product_id = ?", whereArgs: [productId]);
   }
 
+  static Future<int> updateProductNew({
+    required ProductModel productModel,
+    required int productid,
+  }) async {
+    Database? db = await DbHelper.getDataBaseInstance();
+    return db!.update(TABLE_NAME_PRODUCT_TABLE,
+        productModel.toMapForCategoryDb(),
+        where: "$clm_product_id = ?", whereArgs: [productid]);
+  }
+
 
 }

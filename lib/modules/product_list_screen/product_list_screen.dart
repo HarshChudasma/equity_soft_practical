@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:equitysoft_practical/modules/product/controllers/product_controller.dart';
 import 'package:flutter/material.dart';
@@ -75,10 +76,9 @@ class _ProductListScreenState extends State<ProductListScreen> {
   }
 
   Widget _listOfProductListWidget(int index) {
-    print("product list : ${productController.productModelList[index].productImages.length}");
     return GestureDetector(
       onTap: () {
-        Get.toNamed(AppRoutes.DETAILS_SCREEN,arguments: {'id': productController.productModelList[index].id,'index':index});
+        Get.toNamed(AppRoutes.DETAILS_SCREEN,arguments: productController.productModelList[index].id);
       },
       child: Card(
         elevation: 2.0,
@@ -91,10 +91,12 @@ class _ProductListScreenState extends State<ProductListScreen> {
               Container(
                 height: 75,
                 width: 75,
+                alignment: Alignment.center,
                 decoration: BoxDecoration(
                   color: AppColorConstants.greyColor,
                   borderRadius: BorderRadius.circular(5.0),
                 ),
+                child: const Text("Image",style: TextStyle(color: AppColorConstants.whiteColor,fontSize: 12),),
               ),
               const SizedBox(
                 width: 12.0,
@@ -160,7 +162,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                     ),
                     ElevatedButton(
                       onPressed: () {
-                        productController.deleteProductById(productController.productModelList[index].id, index);
+                        productController.deleteProductById(productController.productModelList[index].id);
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColorConstants.greyColor,
@@ -182,4 +184,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
       ),
     );
   }
+
+
+
 }

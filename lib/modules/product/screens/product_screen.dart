@@ -1,9 +1,6 @@
 import 'package:dropdown_button2/dropdown_button2.dart';
-import 'package:equitysoft_practical/config/routes/app_routes.dart';
 import 'package:equitysoft_practical/modules/category/controllers/category_controller.dart';
-import 'package:equitysoft_practical/modules/category/models/category_model.dart';
 import 'package:equitysoft_practical/modules/company/controllers/company_controller.dart';
-import 'package:equitysoft_practical/modules/company/models/company_model.dart';
 import 'package:equitysoft_practical/modules/product/controllers/product_controller.dart';
 import 'package:equitysoft_practical/modules/product/models/product_model.dart';
 import 'package:equitysoft_practical/modules/product/widget/common_textfield.dart';
@@ -42,17 +39,53 @@ class _AddProductScreenState extends State<AddProductScreen> {
   CategoryController categoryController = Get.find<CategoryController>();
   CompanyController companyController = Get.find<CompanyController>();
 
-  List<CategoryModel> _categoryModelList = [];
-  List<CompanyModel> _companyModelList = [];
   var arguments;
 
   @override
   void initState() {
     setTextFieldFocusNode();
     removeAllImageorList();
+    arguments = Get.arguments;
+    categoryController.selectedCategoryPos.value = 0;
+    companyController.selectedCompanyPos.value = 0;
+    productController.isEdit.value = false;
+    if (arguments != null) {
+      print("${arguments['isEdit']}");
+      productController.isEdit.value = arguments['isEdit'];
+      productController.isId.value = arguments['id'];
+      if (arguments['isEdit'] == true) {
+        productController.getProductByIdDb(productId: arguments['id']).then((value) {
+          setEditValue();
+        });
+      }
+    }
     categoryController.getCategory();
     companyController.getCompanyDb();
     super.initState();
+  }
+
+  setEditValue() {
+    _productNameController.text = productController.productModel!.productName;
+    _descriptionController.text =
+        productController.productModel!.productDescription;
+    _priceController.text = productController.productModel!.productPrice;
+    _qtyController.text = productController.productModel!.productQty;
+    for (int i = 0;
+        i < categoryController.categoryModelDropDownList.length;
+        i++) {
+      if (categoryController.categoryModelDropDownList[i].categoryId ==
+          productController.productModel!.categoryId) {
+        categoryController.selectedCategoryPos.value = i;
+      }
+    }
+    for (int i = 0;
+        i < companyController.companyDropDownModelList.length;
+        i++) {
+      if (companyController.companyDropDownModelList[i].companyId ==
+          productController.productModel!.companyId) {
+        companyController.selectedCompanyPos.value = i;
+      }
+    }
   }
 
   removeAllImageorList() {
@@ -134,30 +167,29 @@ class _AddProductScreenState extends State<AddProductScreen> {
                   ),
                   Obx(
                     () => DropdownButtonFormField2(
+                      value: categoryController.selectedCategoryPos.value,
+                      onChanged: (position) {
+                        categoryController.selectedCategoryPos.value =
+                            position as int;
+                      },
+                      iconEnabledColor: Colors.blue,
+                      isDense: true,
                       isExpanded: true,
+                      items: [
+                        ...categoryController.categoryModelDropDownList
+                            .map(
+                              (e) => DropdownMenuItem(
+                                value: e.position,
+                                child: Text(e.categoryName),
+                              ),
+                            )
+                            .toList(),
+                      ],
                       icon: const Icon(
                         Icons.arrow_drop_down,
                         color: Colors.black45,
                       ),
                       buttonHeight: 20,
-                      onChanged: (value) {
-                        categoryController.categoryModel = value!;
-                      },
-                      items: categoryController.categoryList.map(
-                        (item) {
-                          return DropdownMenuItem(
-                            value: item,
-                            child: Text(
-                              item.categoryName,
-                            ),
-                          );
-                        },
-                      ).toList(),
-                      validator: (value){
-                        if(categoryController.categoryModel == null){
-                          return "Please select category";
-                        }
-                      },
                       focusNode: _categoryFocusNode,
                       decoration: InputDecoration(
                         border: OutlineInputBorder(
@@ -183,30 +215,29 @@ class _AddProductScreenState extends State<AddProductScreen> {
                   ),
                   Obx(
                     () => DropdownButtonFormField2(
+                      value: companyController.selectedCompanyPos.value,
+                      onChanged: (position) {
+                        companyController.selectedCompanyPos.value =
+                            position as int;
+                      },
+                      iconEnabledColor: Colors.blue,
+                      isDense: true,
                       isExpanded: true,
+                      items: [
+                        ...companyController.companyDropDownModelList
+                            .map(
+                              (e) => DropdownMenuItem(
+                                value: e.position,
+                                child: Text(e.companyName),
+                              ),
+                            )
+                            .toList(),
+                      ],
                       icon: const Icon(
                         Icons.arrow_drop_down,
                         color: Colors.black45,
                       ),
                       buttonHeight: 20,
-                      onChanged: (value) {
-                        companyController.companyModel = value!;
-                      },
-                      validator: (value){
-                        if(companyController.companyModel == null){
-                          return "Please select company";
-                        }
-                      },
-                      items: companyController.companyList.map(
-                        (item) {
-                          return DropdownMenuItem(
-                            value: item,
-                            child: Text(
-                              item.companyName,
-                            ),
-                          );
-                        },
-                      ).toList(),
                       focusNode: _companyFocusNode,
                       decoration: InputDecoration(
                         border: OutlineInputBorder(
@@ -479,43 +510,31 @@ class _AddProductScreenState extends State<AddProductScreen> {
                   const SizedBox(
                     height: 24.0,
                   ),
-                  ElevatedButton(
-                    onPressed: () {
-                      if (_formKey.currentState!.validate()) {
-                        _formKey.currentState!.save();
-                        print("product image list : ${productController.imageList}");
-                        if (productController.imageList.length >= 2) {
-                          ProductModel productModel = ProductModel(
-                            productName: _productNameController.text,
-                            categoryId: categoryController.categoryModel!.id,
-                            companyId: companyController.companyModel!.id,
-                            productCategory: categoryController.categoryModel!.categoryName,
-                            productCompany: companyController.companyModel!.companyName,
-                            productDesc: _descriptionController.text,
-                            productPrice: _priceController.text,
-                            productQty: _qtyController.text,
-                            productImages: productController.imageList,
-                          );
-                          productController.addProducttoDb(productModel);
-                          emptyAllField();
-                          Get.back();
-                          // Get.offNamed(AppRoutes.PRODUCT_LIST_SCREEN);
-                        } else {
-                          Utility.showToast("Please select minimum 2 image");
+                  Obx(
+                    () => ElevatedButton(
+                      onPressed: () {
+                        if (_formKey.currentState!.validate()) {
+                          _formKey.currentState!.save();
+                          if (productController.isEdit.value == true) {
+                            updateProduct();
+                          } else {
+                            addProduct();
+                          }
+
+                          FocusScope.of(context).unfocus();
                         }
-                        FocusScope.of(context).unfocus();
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColorConstants.greyColor,
-                    ),
-                    child: const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 12.0),
-                      child: Text(
-                        "Save",
-                        style: TextStyle(
-                            color: AppColorConstants.whiteColor,
-                            fontSize: 14.0),
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColorConstants.greyColor,
+                      ),
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(vertical: 12.0),
+                        child: Text(
+                          productController.isEdit.value ? "Update" : "Save",
+                          style: const TextStyle(
+                              color: AppColorConstants.whiteColor,
+                              fontSize: 14.0),
+                        ),
                       ),
                     ),
                   ),
@@ -528,7 +547,76 @@ class _AddProductScreenState extends State<AddProductScreen> {
     );
   }
 
-  void emptyAllField(){
+  void addProduct() {
+    if (productController.imageList.length >= 1) {
+      ProductModel productModel = ProductModel(
+        productName: _productNameController.text,
+        categoryId: categoryController
+            .categoryModelDropDownList[
+                categoryController.selectedCategoryPos.value]
+            .categoryId,
+        companyId: companyController
+            .companyDropDownModelList[
+                companyController.selectedCompanyPos.value]
+            .companyId,
+        productCategory: categoryController
+            .categoryModelDropDownList[
+                categoryController.selectedCategoryPos.value]
+            .categoryName,
+        productCompany: companyController
+            .companyDropDownModelList[
+                companyController.selectedCompanyPos.value]
+            .companyName,
+        productDesc: _descriptionController.text,
+        productPrice: _priceController.text,
+        productQty: _qtyController.text,
+        productImages: [productController.imageList.first],
+      );
+      productController.addNewProduct(
+        productModel: productModel,
+      );
+      emptyAllField();
+      Get.back();
+    } else {
+      Utility.showToast("Please select minimum 1 image");
+    }
+  }
+
+  void updateProduct() {
+    if (productController.imageList.length >= 1) {
+      ProductModel productModel = ProductModel(
+        productName: _productNameController.text,
+        categoryId: categoryController
+            .categoryModelDropDownList[
+                categoryController.selectedCategoryPos.value]
+            .categoryId,
+        companyId: companyController
+            .companyDropDownModelList[
+                companyController.selectedCompanyPos.value]
+            .companyId,
+        productCategory: categoryController
+            .categoryModelDropDownList[
+                categoryController.selectedCategoryPos.value]
+            .categoryName,
+        productCompany: companyController
+            .companyDropDownModelList[
+                companyController.selectedCompanyPos.value]
+            .companyName,
+        productDesc: _descriptionController.text,
+        productPrice: _priceController.text,
+        productQty: _qtyController.text,
+        productImages: [productController.imageList.first],
+      );
+      productController.updateProductByIdDb(
+          productModel: productModel, productid: productController.isId.value);
+      emptyAllField();
+      Get.back();
+    } else {
+      Utility.showToast("Please select minimum 1 image");
+    }
+  }
+
+  void emptyAllField() {
     _productNameController.text = "";
     categoryController.categoryModel = null;
     companyController.companyModel = null;

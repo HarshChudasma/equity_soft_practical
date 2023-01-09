@@ -1,5 +1,7 @@
 import 'package:equitysoft_practical/database/category_tbl.dart';
+import 'package:equitysoft_practical/modules/category/models/category_drop_down_model.dart';
 import 'package:equitysoft_practical/modules/category/models/category_model.dart';
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 
 class CategoryController extends GetxController {
@@ -10,12 +12,21 @@ class CategoryController extends GetxController {
   final RxBool isAddError = false.obs;
   CategoryModel? categoryModel;
 
+  //for product category drop down
+  late RxList<CategoryDropDownModel> categoryModelDropDownList = RxList<CategoryDropDownModel>([]);
+  late RxInt selectedCategoryPos = 0.obs;
+
   getCategory() {
     isLoading.value = true;
     try{
+      categoryModelDropDownList.clear();
       CategoryTable.getAllCategoryFromDb().then(
             (value) {
           categoryList.value = value;
+          for(int i=0;i<categoryList.length;i++){
+            CategoryDropDownModel categoryModelDropDownLis = CategoryDropDownModel(position: i,categoryName: categoryList[i].categoryName,categoryId: categoryList[i].id,);
+            categoryModelDropDownList.add(categoryModelDropDownLis);
+          }
           isLoading.value = false;
         },
       );

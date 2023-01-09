@@ -85,8 +85,9 @@ class ProductModel {
     _productQty = json['qty'];
     _productImages = [];
     if (json['product_img'] != null) {
-      _productImages = jsonDecode(json['product_img']).cast<String>();
+      List<String> _productImages = jsonDecode(json['product_img']).cast<String>();
     }
+
   }
 
   Map<String, dynamic> toMapForCategoryDb() {

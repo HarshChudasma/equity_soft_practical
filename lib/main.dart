@@ -1,4 +1,4 @@
-import 'package:equitysoft_practical/constants/colors_constant.dart';
+import 'package:equitysoft_practical/config/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -38,7 +38,7 @@ class _MyAppState extends State<MyApp> {
       debugShowCheckedModeBanner: false,
       title: "Equity Soft Practical",
       themeMode: ThemeMode.light,
-      theme: ThemeData(primaryColor: AppColorConstants.greyColor,),
+      theme: AppTheme.light,
     );
   }
 }

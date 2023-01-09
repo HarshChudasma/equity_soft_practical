@@ -1,7 +1,7 @@
 import 'package:equitysoft_practical/constants/colors_constant.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
-class Utility{
+class Utility {
   static void showToast(String string) {
     Fluttertoast.cancel();
     Fluttertoast.showToast(
